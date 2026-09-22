@@ -65,7 +65,7 @@ def home():
     return render_template("home.html")
 
 
-@app.route("/tracker", methods=["GET", "POST"])
+@app.route("/tracker", methods=["GET", "POST"], strict_slashes=False)
 def tracker():
     result = None
     error = None
@@ -99,12 +99,12 @@ def tracker():
     return render_template("index.html", result=result, error=error, students=students, average_score=average_score)
 
 
-@app.route("/about")
+@app.route("/about", strict_slashes=False)
 def about():
     return render_template("about.html")
 
 
-@app.post("/reset")
+@app.route("/reset", methods=["POST"], strict_slashes=False)
 def reset():
     session["students"] = []
     data_file = get_data_file()
