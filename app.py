@@ -23,6 +23,18 @@ def get_data_file() -> Path:
     return BASE_DIR / "students.csv"
 
 
+def calculate_grade(score: float) -> str:
+    if score >= 80:
+        return "A"
+    if score >= 70:
+        return "B"
+    if score >= 60:
+        return "C"
+    if score >= 50:
+        return "D"
+    return "F"
+
+
 def load_students():
     data_file = get_data_file()
     try:
@@ -35,10 +47,12 @@ def load_students():
             for row in reader:
                 if row.get("name") and row.get("score") is not None:
                     try:
+                        score_val = float(row["score"])
                         loaded.append({
                             "name": row["name"],
-                            "score": float(row["score"]),
-                            "status": row.get("status", "Pass" if float(row["score"]) >= 50 else "Fail"),
+                            "score": score_val,
+                            "status": row.get("status", "Pass" if score_val >= 50 else "Fail"),
+                            "grade": row.get("grade", calculate_grade(score_val)),
                         })
                     except ValueError:
                         continue
@@ -52,7 +66,7 @@ def save_student(student):
     try:
         new_file = not data_file.exists() or data_file.stat().st_size == 0
         with data_file.open("a", newline="", encoding="utf-8") as file:
-            writer = csv.DictWriter(file, fieldnames=["name", "score", "status"])
+            writer = csv.DictWriter(file, fieldnames=["name", "score", "status", "grade"])
             if new_file:
                 writer.writeheader()
             writer.writerow(student)
@@ -88,15 +102,34 @@ def tracker():
                 error = "Score must be between 0 and 100."
             else:
                 status = "Pass" if score >= 50 else "Fail"
-                result = {"name": name, "score": score, "status": status}
+                grade = calculate_grade(score)
+                result = {"name": name, "score": score, "status": status, "grade": grade}
                 students.append(result)
                 session["students"] = students
                 save_student(result)
         except ValueError:
             error = "Please enter a valid number for the score."
 
-    average_score = sum(student["score"] for student in students) / len(students) if students else None
-    return render_template("index.html", result=result, error=error, students=students, average_score=average_score)
+    if students:
+        scores = [s["score"] for s in students]
+        average_score = sum(scores) / len(scores)
+        highest_score = max(scores)
+        passed_count = sum(1 for s in students if s["score"] >= 50)
+        pass_rate = (passed_count / len(students)) * 100
+    else:
+        average_score = None
+        highest_score = None
+        pass_rate = 0
+
+    return render_template(
+        "index.html",
+        result=result,
+        error=error,
+        students=students,
+        average_score=average_score,
+        highest_score=highest_score,
+        pass_rate=pass_rate,
+    )
 
 
 @app.route("/about", strict_slashes=False)

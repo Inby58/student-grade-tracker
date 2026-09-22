@@ -8,10 +8,69 @@
 </head>
 <body>
     <main>
-        <h1>About the Student Grade Tracker</h1>
-        <p>Made by Izzat</p>
-        <p>This website records student scores, calculates a class average, and labels each score as pass or fail.</p>
-        <p><a href="{{ url_for('home') }}">Home</a> · <a href="{{ url_for('tracker') }}">Open the grade tracker</a></p>
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}">Home</a>
+            <span>•</span>
+            <a href="{{ url_for('tracker') }}">Grade Tracker</a>
+            <span>•</span>
+            <a href="{{ url_for('about') }}" class="active">About</a>
+        </nav>
+
+        <header class="page-header">
+            <h1>📖 About This Project</h1>
+            <p class="subtitle">An overview of how grades are computed, tracked, and visualized.</p>
+            <span class="author-tag">Made by Izzat</span>
+        </header>
+
+        <section style="text-align: left; margin: 24px 0;">
+            <p style="color: var(--text-muted); line-height: 1.6;">
+                The <strong>Student Grade Tracker</strong> is designed for teachers and educators to quickly evaluate class performance, record test scores, and analyze pass/fail distributions in real time with Chart.js visual graphics.
+            </p>
+
+            <h3 style="margin-top: 24px; color: var(--text-main);">Grading Scale</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Grade</th>
+                            <th>Score Range</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="badge-grade grade-A">A</span></td>
+                            <td>80.0% – 100.0%</td>
+                            <td><span class="badge badge-pass">✓ Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge-grade grade-B">B</span></td>
+                            <td>70.0% – 79.9%</td>
+                            <td><span class="badge badge-pass">✓ Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge-grade grade-C">C</span></td>
+                            <td>60.0% – 69.9%</td>
+                            <td><span class="badge badge-pass">✓ Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge-grade grade-D">D</span></td>
+                            <td>50.0% – 59.9%</td>
+                            <td><span class="badge badge-pass">✓ Pass</span></td>
+                        </tr>
+                        <tr>
+                            <td><span class="badge-grade grade-F">F</span></td>
+                            <td>0.0% – 49.9%</td>
+                            <td><span class="badge badge-fail">✕ Fail</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div style="margin-top: 28px;">
+            <a class="button-link" href="{{ url_for('tracker') }}">Open Grade Tracker</a>
+        </div>
     </main>
 </body>
 </html>

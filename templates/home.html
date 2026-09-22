@@ -8,11 +8,47 @@
 </head>
 <body>
     <main>
-        <h1>Welcome to Student Grade Tracker</h1>
-        <p>Made by Izzat</p>
-        <p>Keep track of student scores, instantly see pass or fail results, and view the class average.</p>
-        <p><a class="button-link" href="{{ url_for('tracker') }}">Start tracking grades</a></p>
-        <p><a href="{{ url_for('about') }}">Learn about this project</a></p>
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}" class="active">Home</a>
+            <span>•</span>
+            <a href="{{ url_for('tracker') }}">Grade Tracker</a>
+            <span>•</span>
+            <a href="{{ url_for('about') }}">About</a>
+        </nav>
+
+        <header class="page-header">
+            <h1>🎓 Student Grade Tracker</h1>
+            <p class="subtitle">A visual, interactive tool to record grades and monitor student performance.</p>
+            <span class="author-tag">Made by Izzat</span>
+        </header>
+
+        <section style="margin: 32px 0 24px; text-align: left;">
+            <div class="stats-grid" style="margin-bottom: 24px;">
+                <div class="stat-card">
+                    <span class="stat-icon">📈</span>
+                    <span class="stat-label">Analytics</span>
+                    <span style="font-size: 0.95rem; font-weight: 600; margin-top: 4px;">Dynamic Charts</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">🎯</span>
+                    <span class="stat-label">Grading</span>
+                    <span style="font-size: 0.95rem; font-weight: 600; margin-top: 4px;">Instant A-F & Pass/Fail</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-icon">⚡</span>
+                    <span class="stat-label">Metrics</span>
+                    <span style="font-size: 0.95rem; font-weight: 600; margin-top: 4px;">Average & Top Scores</span>
+                </div>
+            </div>
+
+            <p style="color: var(--text-muted); line-height: 1.6; text-align: center;">
+                Effortlessly enter scores, generate real-time pass/fail proportions, and view letter grade distributions with interactive graphs.
+            </p>
+        </section>
+
+        <div style="margin-top: 28px;">
+            <a class="button-link" href="{{ url_for('tracker') }}">🚀 Launch Grade Tracker</a>
+        </div>
     </main>
 </body>
 </html>
