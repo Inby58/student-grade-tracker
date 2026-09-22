@@ -11,9 +11,9 @@
         <h1>Student Grade Tracker</h1>
         <p>Made by Izzat</p>
         <p>Enter a student's name and score to check their result.</p>
-        <p><a href="/">Home</a> · <a href="/about">About this project</a></p>
+        <p><a href="{{ url_for('home') }}">Home</a> · <a href="{{ url_for('about') }}">About this project</a></p>
 
-        <form method="post">
+        <form method="post" action="{{ url_for('tracker') }}">
             <label for="name">Student name</label>
             <input id="name" name="name" required>
 
@@ -52,7 +52,7 @@
                 {% endfor %}
             </table>
             <p><strong>Class average: {{ '%.2f'|format(average_score) }}</strong></p>
-            <form action="/reset" method="post" onsubmit="return confirm('Delete all saved student records? This cannot be undone.');">
+            <form action="{{ url_for('reset') }}" method="post" onsubmit="return confirm('Delete all saved student records? This cannot be undone.');">
                 <button class="danger-button" type="submit">Clear all student data</button>
             </form>
         </section>
