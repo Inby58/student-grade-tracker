@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+    <defs>
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2563eb" />
+            <stop offset="50%" stop-color="#1d4ed8" />
+            <stop offset="100%" stop-color="#1e40af" />
+        </linearGradient>
+        <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fde047" />
+            <stop offset="100%" stop-color="#d97706" />
+        </linearGradient>
+        <linearGradient id="tasselGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fef08a" />
+            <stop offset="50%" stop-color="#f59e0b" />
+            <stop offset="100%" stop-color="#b45309" />
+        </linearGradient>
+        <linearGradient id="capTopGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#60a5fa" />
+            <stop offset="50%" stop-color="#3b82f6" />
+            <stop offset="100%" stop-color="#1d4ed8" />
+        </linearGradient>
+        <filter id="badgeShadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.3"/>
+        </filter>
+    </defs>
+
+    <!-- Main Squircle Badge -->
+    <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#bgGrad)" stroke="url(#borderGrad)" stroke-width="1.8"/>
+
+    <!-- Inner Highlight -->
+    <rect x="4" y="4" width="56" height="26" rx="12" fill="#ffffff" fill-opacity="0.12"/>
+
+    <!-- Graduation Cap Symbol -->
+    <g filter="url(#badgeShadow)">
+        <!-- Cap Skull Base -->
+        <path d="M22 34.5v5.5c0 4.5 4.5 8 10 8s10-3.5 10-8v-5.5" fill="#1e3a8a"/>
+        <path d="M22 34.5c0 4.5 4.5 7.5 10 7.5s10-3 10-7.5" fill="#2563eb" opacity="0.6"/>
+
+        <!-- Mortarboard Diamond Top -->
+        <polygon points="32,17 52,27.5 32,38 12,27.5" fill="url(#capTopGrad)" stroke="#93c5fd" stroke-width="0.8"/>
+
+        <!-- Center Button -->
+        <ellipse cx="32" cy="27.5" rx="2.5" ry="1.8" fill="url(#tasselGrad)"/>
+
+        <!-- Tassel String and Hanging Tuft -->
+        <path d="M32 27.5c5 0.5 12 2 13 6v8.5" fill="none" stroke="url(#tasselGrad)" stroke-width="2.2" stroke-linecap="round"/>
+        <circle cx="45" cy="42.5" r="2.2" fill="url(#tasselGrad)"/>
+    </g>
+</svg>
