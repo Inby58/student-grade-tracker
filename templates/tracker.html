@@ -200,9 +200,10 @@
             </div>
         </section>
 
+        <script id="students-data" type="application/json">{{ students | tojson }}</script>
         <script>
             // Student records passed from Flask
-            const studentsData = {{ students | tojson }};
+            const studentsData = JSON.parse(document.getElementById('students-data').textContent || '[]');
 
             if (studentsData && studentsData.length > 0) {
                 // Calculate Pass vs Fail counts
