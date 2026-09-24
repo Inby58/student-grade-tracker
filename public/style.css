@@ -228,6 +228,15 @@ h1 {
     margin: 0 0 4px;
 }
 
+.header-tags {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
 .author-tag {
     display: inline-block;
     background: var(--badge-author-bg);
@@ -236,8 +245,49 @@ h1 {
     font-weight: 600;
     padding: 3px 10px;
     border-radius: 9999px;
-    margin-top: 6px;
     transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.db-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(16, 185, 129, 0.12);
+    color: var(--success-dark);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    transition: all 0.25s ease;
+}
+
+[data-theme="dark"] .db-tag {
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.35);
+}
+
+.delete-btn {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    border-radius: var(--radius-sm);
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+}
+
+.delete-btn:hover {
+    background: var(--danger-light);
+    border-color: var(--danger);
+    color: var(--danger);
+    transform: scale(1.08);
 }
 
 /* Forms */

@@ -53,7 +53,10 @@
         <header class="page-header">
             <h1>🎓 Student Grade Tracker</h1>
             <p class="subtitle">Record student scores, track grade distributions, and visualize class analytics.</p>
-            <span class="author-tag">Made by Izzat</span>
+            <div class="header-tags">
+                <span class="author-tag">Made by Izzat</span>
+                <span class="db-tag" title="Connected to Supabase Cloud Database">⚡ Supabase Database</span>
+            </div>
         </header>
 
         <section class="form-card">
@@ -158,6 +161,7 @@
                             <th>Score</th>
                             <th>Grade</th>
                             <th>Status</th>
+                            <th style="width: 60px; text-align: center;">Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -172,6 +176,15 @@
                                 <span class="badge {{ 'badge-pass' if student.status == 'Pass' else 'badge-fail' }}">
                                     {{ '✓ Pass' if student.status == 'Pass' else '✕ Fail' }}
                                 </span>
+                            </td>
+                            <td style="text-align: center;">
+                                {% if student.id %}
+                                <form action="{{ url_for('delete_student', student_id=student.id) }}" method="post" style="margin: 0; display: inline;" onsubmit="return confirm('Delete {{ student.name }}?');">
+                                    <button class="delete-btn" type="submit" title="Delete record" aria-label="Delete {{ student.name }}">✕</button>
+                                </form>
+                                {% else %}
+                                <span style="color: var(--text-muted);">-</span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
