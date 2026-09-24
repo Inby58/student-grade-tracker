@@ -4,18 +4,51 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Grade Tracker</title>
+    <script>
+        (function() {
+            try {
+                const stored = localStorage.getItem('theme_preference');
+                const theme = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {}
+        })();
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <main>
-        <nav class="nav-links">
-            <a href="{{ url_for('home') }}">Home</a>
-            <span>•</span>
-            <a href="{{ url_for('tracker') }}" class="active">Grade Tracker</a>
-            <span>•</span>
-            <a href="{{ url_for('about') }}">About</a>
-        </nav>
+        <div class="top-nav-bar">
+            <nav class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <span>•</span>
+                <a href="{{ url_for('tracker') }}" class="active">Grade Tracker</a>
+                <span>•</span>
+                <a href="{{ url_for('about') }}">About</a>
+            </nav>
+
+            <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Switch to dark mode" title="Switch to dark mode">
+                <span class="theme-icon sun-icon" style="display: none;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </span>
+                <span class="theme-icon moon-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </span>
+                <span class="theme-toggle-text">Dark Mode</span>
+            </button>
+        </div>
 
         <header class="page-header">
             <h1>🎓 Student Grade Tracker</h1>
@@ -182,12 +215,11 @@
                 });
 
                 // Chart.js global font
-                Chart.defaults.font.family = "'Inter', sans-serif";
-                Chart.defaults.color = "#475569";
+                Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 
                 // 1. Pass / Fail Donut Chart
                 const passFailCtx = document.getElementById('passFailChart').getContext('2d');
-                new Chart(passFailCtx, {
+                const passFailChart = new Chart(passFailCtx, {
                     type: 'doughnut',
                     data: {
                         labels: ['Pass (≥ 50%)', 'Fail (< 50%)'],
@@ -229,7 +261,7 @@
 
                 // 2. Grade Distribution Bar Chart
                 const gradeDistCtx = document.getElementById('gradeDistChart').getContext('2d');
-                new Chart(gradeDistCtx, {
+                const gradeDistChart = new Chart(gradeDistCtx, {
                     type: 'bar',
                     data: {
                         labels: ['A (80-100)', 'B (70-79)', 'C (60-69)', 'D (50-59)', 'F (0-49)'],
@@ -290,6 +322,45 @@
                         }
                     }
                 });
+
+                function updateChartsTheme(theme) {
+                    const isDark = theme === 'dark';
+                    const textColor = isDark ? '#94a3b8' : '#475569';
+                    const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9';
+                    const donutBorder = isDark ? '#1e293b' : '#ffffff';
+
+                    Chart.defaults.color = textColor;
+
+                    if (passFailChart) {
+                        passFailChart.data.datasets[0].borderColor = donutBorder;
+                        if (passFailChart.options.plugins?.legend?.labels) {
+                            passFailChart.options.plugins.legend.labels.color = textColor;
+                        }
+                        passFailChart.update();
+                    }
+
+                    if (gradeDistChart) {
+                        if (gradeDistChart.options.scales?.y?.grid) {
+                            gradeDistChart.options.scales.y.grid.color = gridColor;
+                        }
+                        if (gradeDistChart.options.scales?.y?.ticks) {
+                            gradeDistChart.options.scales.y.ticks.color = textColor;
+                        }
+                        if (gradeDistChart.options.scales?.x?.ticks) {
+                            gradeDistChart.options.scales.x.ticks.color = textColor;
+                        }
+                        gradeDistChart.update();
+                    }
+                }
+
+                // Initial setup matching active theme
+                const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                updateChartsTheme(activeTheme);
+
+                // Listen for theme switch events
+                window.addEventListener('themechange', function(e) {
+                    updateChartsTheme(e.detail.theme);
+                });
             }
         </script>
         {% else %}
@@ -301,5 +372,7 @@
         {% endif %}
 
     </main>
+
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
 </body>
 </html>
