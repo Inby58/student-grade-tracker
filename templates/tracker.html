@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Grade Tracker</title>
+    <script>
+        (function() {
+            try {
+                const stored = localStorage.getItem('theme_preference');
+                const theme = stored || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (e) {}
+        })();
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <main>
+        <div class="top-nav-bar">
+            <nav class="nav-links">
+                <a href="{{ url_for('home') }}">Home</a>
+                <span>•</span>
+                <a href="{{ url_for('tracker') }}" class="active">Grade Tracker</a>
+                <span>•</span>
+                <a href="{{ url_for('about') }}">About</a>
+            </nav>
+
+            <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Switch to dark mode" title="Switch to dark mode">
+                <span class="theme-icon sun-icon" style="display: none;">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                </span>
+                <span class="theme-icon moon-icon">
+                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                    </svg>
+                </span>
+                <span class="theme-toggle-text">Dark Mode</span>
+            </button>
+        </div>
+
+        <header class="page-header">
+            <h1>🎓 Student Grade Tracker</h1>
+            <p class="subtitle">Record student scores, track grade distributions, and visualize class analytics.</p>
+            <span class="author-tag">Made by Izzat</span>
+        </header>
+
+        <section class="form-card">
+            <h2 class="form-title">Add Student Record</h2>
+            <form method="post" id="grade-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Student Name</label>
+                        <input id="name" name="name" placeholder="e.g. Aina Zahra" required autocomplete="off">
+                    </div>
+                    <div class="form-group">
+                        <label for="score">Score (0 - 100)</label>
+                        <input id="score" name="score" type="number" min="0" max="100" step="0.1" placeholder="e.g. 85.5" required>
+                    </div>
+                </div>
+                <button type="submit" id="submit-btn">+ Add Student Result</button>
+            </form>
+        </section>
+
+        {% if error %}
+        <div class="error" role="alert">
+            <strong>Notice:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        {% if result %}
+        <section class="result" role="region" aria-live="polite">
+            <h2>
+                {{ result.name }}: 
+                <span class="badge {{ 'badge-pass' if result.status == 'Pass' else 'badge-fail' }}">
+                    {{ '✓ Pass' if result.status == 'Pass' else '✕ Fail' }}
+                </span>
+                <span class="badge-grade grade-{{ result.grade }}">{{ result.grade }}</span>
+            </h2>
+            <p>Score: <strong>{{ '%.1f'|format(result.score) }}%</strong></p>
+        </section>
+        {% endif %}
+
+        {% if students %}
+        <!-- Summary KPI Cards -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <span class="stat-icon">👥</span>
+                <span class="stat-label">Total Students</span>
+                <span class="stat-value">{{ students|length }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">📊</span>
+                <span class="stat-label">Class Average</span>
+                <span class="stat-value">{{ '%.1f'|format(average_score) }}%</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🏆</span>
+                <span class="stat-label">Top Score</span>
+                <span class="stat-value">{{ '%.1f'|format(highest_score) }}%</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-icon">🎯</span>
+                <span class="stat-label">Pass Rate</span>
+                <span class="stat-value">{{ '%.1f'|format(pass_rate) }}%</span>
+            </div>
+        </section>
+
+        <!-- Visual Analytics Charts -->
+        <section class="charts-section">
+            <div class="section-header">
+                <h2 class="section-title">📊 Visual Analytics & Performance</h2>
+            </div>
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Pass vs Fail Ratio</h3>
+                        <p class="chart-desc">Proportion of class achieving passing marks (≥ 50%)</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="passFailChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Grade Distribution</h3>
+                        <p class="chart-desc">Student count across letter grade brackets (A - F)</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="gradeDistChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Student Data Table -->
+        <section class="table-section">
+            <div class="section-header">
+                <h2 class="section-title">📋 Student Records ({{ students|length }})</h2>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Score</th>
+                            <th>Grade</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td><strong>{{ student.name }}</strong></td>
+                            <td>{{ '%.1f'|format(student.score) }}%</td>
+                            <td>
+                                <span class="badge-grade grade-{{ student.grade or 'F' }}">{{ student.grade or 'F' }}</span>
+                            </td>
+                            <td>
+                                <span class="badge {{ 'badge-pass' if student.status == 'Pass' else 'badge-fail' }}">
+                                    {{ '✓ Pass' if student.status == 'Pass' else '✕ Fail' }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-footer">
+                <p><strong>Class Average:</strong> {{ '%.2f'|format(average_score) }}%</p>
+                <form action="{{ url_for('reset') }}" method="post" onsubmit="return confirm('Are you sure you want to delete all saved student records?');">
+                    <button class="danger-button" type="submit">Clear all student data</button>
+                </form>
+            </div>
+        </section>
+
+        <script>
+            // Student records passed from Flask
+            const studentsData = {{ students | tojson }};
+
+            if (studentsData && studentsData.length > 0) {
+                // Calculate Pass vs Fail counts
+                let passCount = 0;
+                let failCount = 0;
+
+                // Grade distribution buckets
+                const gradeCounts = { 'A': 0, 'B': 0, 'C': 0, 'D': 0, 'F': 0 };
+
+                studentsData.forEach(s => {
+                    const score = parseFloat(s.score);
+                    if (score >= 50) {
+                        passCount++;
+                    } else {
+                        failCount++;
+                    }
+
+                    if (score >= 80) gradeCounts['A']++;
+                    else if (score >= 70) gradeCounts['B']++;
+                    else if (score >= 60) gradeCounts['C']++;
+                    else if (score >= 50) gradeCounts['D']++;
+                    else gradeCounts['F']++;
+                });
+
+                // Chart.js global font
+                Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+                // 1. Pass / Fail Donut Chart
+                const passFailCtx = document.getElementById('passFailChart').getContext('2d');
+                const passFailChart = new Chart(passFailCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Pass (≥ 50%)', 'Fail (< 50%)'],
+                        datasets: [{
+                            data: [passCount, failCount],
+                            backgroundColor: ['#10b981', '#ef4444'],
+                            hoverBackgroundColor: ['#059669', '#dc2626'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        cutout: '68%',
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 16,
+                                    usePointStyle: true,
+                                    pointStyle: 'circle',
+                                    font: { size: 12, weight: '500' }
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const val = context.raw || 0;
+                                        const total = passCount + failCount;
+                                        const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                                        return ` ${context.label}: ${val} student(s) (${pct}%)`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                // 2. Grade Distribution Bar Chart
+                const gradeDistCtx = document.getElementById('gradeDistChart').getContext('2d');
+                const gradeDistChart = new Chart(gradeDistCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['A (80-100)', 'B (70-79)', 'C (60-69)', 'D (50-59)', 'F (0-49)'],
+                        datasets: [{
+                            label: 'Number of Students',
+                            data: [
+                                gradeCounts['A'],
+                                gradeCounts['B'],
+                                gradeCounts['C'],
+                                gradeCounts['D'],
+                                gradeCounts['F']
+                            ],
+                            backgroundColor: [
+                                '#10b981', // A (emerald)
+                                '#3b82f6', // B (blue)
+                                '#f59e0b', // C (amber)
+                                '#f97316', // D (orange)
+                                '#ef4444'  // F (red)
+                            ],
+                            borderRadius: 6,
+                            borderSkipped: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return ` Students: ${context.raw}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1,
+                                    precision: 0
+                                },
+                                grid: {
+                                    color: '#f1f5f9'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                },
+                                ticks: {
+                                    font: { size: 11 }
+                                }
+                            }
+                        }
+                    }
+                });
+
+                function updateChartsTheme(theme) {
+                    const isDark = theme === 'dark';
+                    const textColor = isDark ? '#94a3b8' : '#475569';
+                    const gridColor = isDark ? 'rgba(255, 255, 255, 0.08)' : '#f1f5f9';
+                    const donutBorder = isDark ? '#1e293b' : '#ffffff';
+
+                    Chart.defaults.color = textColor;
+
+                    if (passFailChart) {
+                        passFailChart.data.datasets[0].borderColor = donutBorder;
+                        if (passFailChart.options.plugins?.legend?.labels) {
+                            passFailChart.options.plugins.legend.labels.color = textColor;
+                        }
+                        passFailChart.update();
+                    }
+
+                    if (gradeDistChart) {
+                        if (gradeDistChart.options.scales?.y?.grid) {
+                            gradeDistChart.options.scales.y.grid.color = gridColor;
+                        }
+                        if (gradeDistChart.options.scales?.y?.ticks) {
+                            gradeDistChart.options.scales.y.ticks.color = textColor;
+                        }
+                        if (gradeDistChart.options.scales?.x?.ticks) {
+                            gradeDistChart.options.scales.x.ticks.color = textColor;
+                        }
+                        gradeDistChart.update();
+                    }
+                }
+
+                // Initial setup matching active theme
+                const activeTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                updateChartsTheme(activeTheme);
+
+                // Listen for theme switch events
+                window.addEventListener('themechange', function(e) {
+                    updateChartsTheme(e.detail.theme);
+                });
+            }
+        </script>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📊</div>
+            <p><strong>No students added yet.</strong></p>
+            <p>Enter a student's name and score above to unlock real-time graphs and analytics!</p>
+        </div>
+        {% endif %}
+
+    </main>
+
+    <script src="{{ url_for('static', filename='theme.js') }}"></script>
+</body>
+</html>

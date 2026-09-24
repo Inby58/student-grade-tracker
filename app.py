@@ -76,7 +76,7 @@ def save_student(student):
 
 @app.route("/")
 def home():
-    return render_template("home.html")
+    return render_template("index.html")
 
 
 @app.route("/tracker", methods=["GET", "POST"], strict_slashes=False)
@@ -122,7 +122,7 @@ def tracker():
         pass_rate = 0
 
     return render_template(
-        "index.html",
+        "tracker.html",
         result=result,
         error=error,
         students=students,
